@@ -18,6 +18,8 @@ interface ProcessedFile extends FileMetadata {
     current_estimate: number;
     current_items: number;
     processing_stage: string;
+    projectName?: string;
+    details?: any; // Full project details from backend
   };
 }
 
@@ -157,28 +159,55 @@ const FilePort: React.FC<Props> = ({ themeColor, onFileAdded }) => {
       // Upload to BID-ZONE backend
       const result = await apiService.uploadDocument(file.rawFile, file.name);
       console.log('Upload result:', result);
+      const projectName = result.project_name;
 
       // Update to estimating status
-      setFiles(prev => prev.map(f => f.id === fileId ? { ...f, status: 'estimating' as const, progress: 100 } : f));
+      setFiles(prev => prev.map(f => f.id === fileId ? { 
+        ...f, 
+        status: 'estimating' as const, 
+        progress: 100,
+        estimateData: {
+          current_estimate: 0,
+          current_items: 0,
+          processing_stage: 'Starting...',
+          projectName: projectName
+        }
+      } : f));
 
       // Start polling for real-time estimate
       const pollInterval = setInterval(async () => {
         try {
           const estimate = await apiService.getCurrentEstimate();
-          if (estimate && estimate.project_name === file.name) {
+          if (estimate) {
             setFiles(prev => prev.map(f => f.id === fileId ? { 
               ...f, 
               estimateData: {
+                ...f.estimateData!,
                 current_estimate: estimate.current_estimate,
                 current_items: estimate.current_items,
                 processing_stage: estimate.processing_stage
               }
             } : f));
 
-            // Stop polling if complete
-            if (estimate.status === 'completed') {
+            // Stop polling if complete and fetch detailed results
+            if (estimate.status === 'complete') {
               clearInterval(pollInterval);
-              setFiles(prev => prev.map(f => f.id === fileId ? { ...f, status: 'sent' as const } : f));
+              
+              // Fetch detailed estimate breakdown
+              try {
+                const details = await apiService.getEstimateDetails(projectName);
+                setFiles(prev => prev.map(f => f.id === fileId ? { 
+                  ...f, 
+                  status: 'sent' as const,
+                  estimateData: {
+                    ...f.estimateData!,
+                    details: details
+                  }
+                } : f));
+              } catch (detailsError) {
+                console.error('Error fetching estimate details:', detailsError);
+                setFiles(prev => prev.map(f => f.id === fileId ? { ...f, status: 'sent' as const } : f));
+              }
             }
           }
         } catch (err) {
@@ -295,6 +324,47 @@ const FilePort: React.FC<Props> = ({ themeColor, onFileAdded }) => {
                        <p className="text-[7px] opacity-40 font-mono">
                          {file.estimateData.current_items} items // {file.estimateData.processing_stage}
                        </p>
+                       
+                       {/* Detailed Estimate Breakdown - Show when complete */}
+                       {file.estimateData.details && file.estimateData.details.summary && (
+                         <details className="mt-2">
+                           <summary className="text-[8px] font-black uppercase tracking-widest text-emerald-400 cursor-pointer hover:text-emerald-300">
+                             View Detailed Takeoff
+                           </summary>
+                           <div className="mt-2 space-y-2 text-[7px] font-mono">
+                             <div className="border border-white/10 p-2 bg-black/20">
+                               <p className="text-[8px] font-black text-white/60 mb-1">PROJECT SUMMARY</p>
+                               <p>Total Cost: <span className="text-yellow-400">${file.estimateData.details.summary.total_cost?.toLocaleString()}</span></p>
+                               <p>Items: {file.estimateData.details.summary.item_count}</p>
+                               <p>Divisions: {file.estimateData.details.summary.divisions}</p>
+                               <p>Confidence: {(file.estimateData.details.summary.verification_confidence * 100).toFixed(1)}%</p>
+                             </div>
+                             
+                             {/* CSI Division Breakdown */}
+                             {file.estimateData.details.stages?.aggregation?.divisions && (
+                               <div className="border border-white/10 p-2 bg-black/20 max-h-48 overflow-y-auto custom-scrollbar">
+                                 <p className="text-[8px] font-black text-white/60 mb-2">CSI MASTERFORMAT DIVISIONS</p>
+                                 {Object.entries(file.estimateData.details.stages.aggregation.divisions || {}).map(([divCode, divData]: [string, any]) => (
+                                   <div key={divCode} className="mb-2 pb-2 border-b border-white/5 last:border-0">
+                                     <p className="text-white/80 font-bold">
+                                       DIV {divCode}: {divData.division_name || 'Unknown'}
+                                     </p>
+                                     <p className="text-yellow-400">
+                                       ${divData.subtotal?.toLocaleString() || '0.00'} ({divData.item_count || 0} items)
+                                     </p>
+                                   </div>
+                                 ))}
+                               </div>
+                             )}
+                             
+                             {file.estimateData.details.excel_file && (
+                               <p className="text-emerald-400 text-[8px]">
+                                 Excel export: {file.estimateData.details.excel_file}
+                               </p>
+                             )}
+                           </div>
+                         </details>
+                       )}
                      </div>
                    )}
                 </div>

@@ -134,6 +134,19 @@ export class ApiService {
     return await response.json();
   }
 
+  /**
+   * Get detailed estimate breakdown for a completed project
+   */
+  async getEstimateDetails(projectName: string): Promise<any> {
+    const response = await fetch(`${BASE_URL}/api/estimate/details/${encodeURIComponent(projectName)}`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to get estimate details: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
   // ==================== SIMULATED CLIENT-SIDE (Auth/Billing) ====================
 
   // AUTHENTICATION - SIMULATED CLIENT-SIDE

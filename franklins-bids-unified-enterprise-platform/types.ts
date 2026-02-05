@@ -100,4 +100,5 @@ export interface WindowConfig {
   width: number;
   height: number;
   icon: string;
+  savedPosition?: { x: number; y: number; width: number; height: number }; // Remembers position when closed
 }

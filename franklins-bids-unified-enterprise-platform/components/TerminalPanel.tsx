@@ -92,7 +92,7 @@ const TerminalPanel: React.FC<Props> = ({ logs, themeColor, onCommand }) => {
       >
         <div className="flex flex-col gap-2 opacity-80">
           <div className="text-white/20 mb-4 border-b border-white/5 pb-2">
-            PS C:\USERS\YUR_AI\SDK_CLOUD> INIT_REMOTE_SHELL
+            PS C:\USERS\YUR_AI\SDK_CLOUD{'>'} INIT_REMOTE_SHELL
             <br />
             AUTHENTICATING WITH GOOGLE_GENAI_SERVICE... DONE.
             <br />

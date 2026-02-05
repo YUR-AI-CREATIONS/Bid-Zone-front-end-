@@ -379,9 +379,9 @@ const MainLayout: React.FC = () => {
           </div>
 
           {/* MAIN CHAT AREA - THE FOCUS POINT */}
-          <div className="h-full w-full max-w-5xl mx-auto flex flex-col relative z-[2000]">
-            {/* Minimal Chat History - Integrated into the Flow */}
-            <div className="flex-1 overflow-hidden pb-[160px]"> {/* Adjusted padding to accommodate sticky footer */}
+          <div className="h-full w-full flex flex-col items-center relative z-[2000]">
+            {/* Chat History - Fills Available Space */}
+            <div className="flex-1 w-full overflow-hidden pb-[180px]">
                <ChatPort 
                  messages={state.activeNode.history} 
                  isLoading={isChatLoading} 
@@ -392,49 +392,45 @@ const MainLayout: React.FC = () => {
                />
             </div>
             
-            {/* ZEN CENTRAL PROMPT BOX - Now sticky at the bottom */}
-            <div className="absolute bottom-0 left-0 right-0 p-10 z-10 bg-black/80 backdrop-blur-2xl"> {/* Sticky footer for input */}
+            {/* FIXED BOTTOM PROMPT BOX - 6 inches wide (576px), 1 inch tall (96px) */}
+            <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] w-[576px]">
                <div className="relative group obsidian-glass border-white/10 p-1.5 flex items-center transition-all focus-within:ring-2 ring-white/10 shadow-[0_0_60px_-15px_rgba(255,255,255,0.05)]">
-                  <div className="pl-8 pr-4 opacity-40 group-focus-within:opacity-100 transition-all">
+                  <div className="pl-4 pr-2 opacity-40 group-focus-within:opacity-100 transition-all">
                      {isThinking ? (
-                        <div className="w-8 h-8 flex items-center justify-center">
-                           <Loader2 size={24} className="animate-spin text-yellow-400" />
+                        <div className="w-6 h-6 flex items-center justify-center">
+                           <Loader2 size={20} className="animate-spin text-yellow-400" />
                         </div>
                      ) : (
-                        <Search size={24} className="text-white/40 group-focus-within:text-white" />
+                        <Search size={20} className="text-white/40 group-focus-within:text-white" />
                      )}
                   </div>
                   <input 
                     value={input} 
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
-                    className="flex-1 bg-transparent border-none py-8 px-4 font-space text-[18px] font-light focus:outline-none text-white selection:bg-yellow-400/30 placeholder:opacity-20 placeholder:tracking-[0.2em]"
-                    placeholder="ENTER_SOVEREIGN_COMMAND..."
+                    className="flex-1 bg-transparent border-none py-6 px-3 font-space text-[16px] font-light focus:outline-none text-white selection:bg-yellow-400/30 placeholder:opacity-20 placeholder:tracking-[0.2em] h-[80px]"
+                    placeholder="ENTER_COMMAND..."
                   />
-                  <div className="flex items-center gap-3 pr-6">
+                  <div className="flex items-center pr-3">
                      <button 
                        onClick={handleSendMessage}
                        disabled={isChatLoading || !input.trim()}
-                       className="p-5 bg-white text-black hover:bg-yellow-400 transition-all active:scale-95 disabled:opacity-5 disabled:grayscale"
+                       className="p-4 bg-white text-black hover:bg-yellow-400 transition-all active:scale-95 disabled:opacity-5 disabled:grayscale"
                      >
-                        <Zap size={22} className={isChatLoading ? 'animate-pulse' : ''} />
+                        <Zap size={18} className={isChatLoading ? 'animate-pulse' : ''} />
                      </button>
                   </div>
                </div>
                
                {/* Context Breadcrumbs */}
-               <div className="flex items-center justify-center gap-10 mt-8">
-                  <div className="flex items-center gap-3">
-                     <Target size={12} className="opacity-20" />
-                     <span className="text-[9px] font-black tracking-[0.4em] uppercase opacity-20">Link: {state.activeNode.model}</span>
+               <div className="flex items-center justify-center gap-6 mt-4">
+                  <div className="flex items-center gap-2">
+                     <Target size={10} className="opacity-20" />
+                     <span className="text-[8px] font-black tracking-[0.3em] uppercase opacity-20">{state.activeNode.model}</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                     <Database size={12} className="opacity-20" />
-                     <span className="text-[9px] font-black tracking-[0.4em] uppercase opacity-20">Context: 12.4K Tokens</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                     <Layers size={12} className="opacity-20" />
-                     <span className="text-[9px] font-black tracking-[0.4em] uppercase opacity-20">Mode: Precise</span>
+                  <div className="flex items-center gap-2">
+                     <Database size={10} className="opacity-20" />
+                     <span className="text-[8px] font-black tracking-[0.3em] uppercase opacity-20">12.4K Tokens</span>
                   </div>
                </div>
             </div>

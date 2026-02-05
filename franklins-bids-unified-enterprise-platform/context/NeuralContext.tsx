@@ -82,7 +82,36 @@ function neuralReducer(state: NeuralState, action: NeuralAction): NeuralState {
     case 'TOGGLE_WINDOW':
       return {
         ...state,
-        windows: state.windows.map(w => w.id === action.id ? { ...w, isOpen: action.open ?? !w.isOpen } : w),
+        windows: state.windows.map(w => {
+          if (w.id === action.id) {
+            const newIsOpen = action.open ?? !w.isOpen;
+            
+            // If closing: save current position
+            if (!newIsOpen && w.isOpen) {
+              return { 
+                ...w, 
+                isOpen: false,
+                savedPosition: { x: w.x, y: w.y, width: w.width, height: w.height }
+              };
+            }
+            
+            // If opening: restore saved position if exists
+            if (newIsOpen && !w.isOpen && w.savedPosition) {
+              return {
+                ...w,
+                isOpen: true,
+                x: w.savedPosition.x,
+                y: w.savedPosition.y,
+                width: w.savedPosition.width,
+                height: w.savedPosition.height
+              };
+            }
+            
+            // Otherwise just toggle
+            return { ...w, isOpen: newIsOpen };
+          }
+          return w;
+        }),
         activeWindowId: action.id
       };
     case 'UPDATE_WINDOW':
