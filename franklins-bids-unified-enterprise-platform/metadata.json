@@ -1,0 +1,9 @@
+{
+  "name": "Franklins Bids Unified Enterprise Platform",
+  "description": "Franklins Bids is an enterprise-grade AI platform for Construction Estimating, Land Procurement & Due Diligence, Development Planning & Rendering, and Project Management. Powered by specialized AI agents for precision analysis and professional deliverables.",
+  "requestFramePermissions": [
+    "geolocation",
+    "microphone",
+    "camera"
+  ]
+}

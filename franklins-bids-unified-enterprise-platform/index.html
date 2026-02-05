@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Franklins Bids // Construction AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&family=Inter:wght@100;300;400;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --chrome-silver: linear-gradient(135deg, #FFD700 0%, #FFFFFF 25%, #FFD700 50%, #B8860B 75%, #FFD700 100%);
+            --theme-color: #facc15; 
+        }
+        
+        body, html {
+            margin: 0; padding: 0;
+            background-color: #000;
+            color: #fff;
+            font-family: 'Space Grotesk', sans-serif;
+            overflow: hidden;
+            height: 100%; width: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #root { height: 100%; width: 100%; }
+
+        * {
+            border-radius: 0 !important;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .chrome-text {
+            background: var(--chrome-silver);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shine 8s linear infinite;
+        }
+
+        @keyframes shine {
+            0% { background-position: 0% center; }
+            100% { background-position: 400% center; }
+        }
+
+        .obsidian-glass {
+            background: rgba(8, 8, 8, 0.45);
+            backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .liquid-window {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, width 0.2s ease, height 0.2s ease;
+        }
+
+        .chrome-border {
+            border-image: var(--chrome-silver) 1;
+            border-width: 1px;
+            border-style: solid;
+        }
+
+        .lit-text {
+            color: var(--theme-color);
+            text-shadow: 0 0 15px var(--theme-color);
+            font-weight: 900;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 3px; height: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--theme-color); }
+
+        .btn-pulse:active {
+            transform: scale(0.95);
+            background: rgba(250, 204, 21, 0.1);
+        }
+
+        .desktop-area {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        .blueprint-grid {
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body style="--theme-color: #facc15">
+    <div id="root" class="blueprint-grid"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
