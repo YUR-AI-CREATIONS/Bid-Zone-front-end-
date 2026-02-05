@@ -236,14 +236,15 @@ const MainLayout: React.FC = () => {
            <button 
              onClick={() => setLeftPanelOpen(!leftPanelOpen)}
              className={`p-2.5 border transition-all ${leftPanelOpen ? 'bg-white/10 border-white/20' : 'border-white/5 hover:bg-white/5'}`}
+             title="Toggle LLM Models Panel"
            >
-              <Menu size={20} />
+              <Cpu size={20} />
            </button>
            <div className="flex items-center gap-4">
-              <Globe size={18} className="text-yellow-400" />
+              <Building2 size={18} className="text-yellow-400" />
               <div className="flex flex-col">
-                 <h1 className="text-lg font-black tracking-[0.3em] chrome-text uppercase leading-none">SOVEREIGN AI</h1>
-                 <span className="text-[6px] font-mono opacity-30 tracking-[0.4em] uppercase mt-1">Regenerative Systems // v4.2-STABLE</span>
+                 <h1 className="text-lg font-black tracking-[0.3em] chrome-text uppercase leading-none">BID-ZONE</h1>
+                 <span className="text-[6px] font-mono opacity-30 tracking-[0.4em] uppercase mt-1">Construction Intelligence // FRANKLIN OS</span>
               </div>
            </div>
         </div>
@@ -251,146 +252,72 @@ const MainLayout: React.FC = () => {
         <div className="flex items-center gap-6">
            <div className="hidden lg:flex items-center gap-8 mr-8">
               <div className="flex flex-col items-end">
-                 <span className="text-[7px] font-black tracking-widest uppercase opacity-20">Active_Link</span>
+                 <span className="text-[7px] font-black tracking-widest uppercase opacity-20">Active_Agent</span>
                  <span className="text-[9px] font-mono tracking-widest uppercase text-yellow-400">{state.activeNode.model}</span>
               </div>
               <div className="flex flex-col items-end">
-                 <span className="text-[7px] font-black tracking-widest uppercase opacity-20">Throughput</span>
-                 <span className="text-[9px] font-mono tracking-widest uppercase">98.4 GB/S</span>
+                 <span className="text-[7px] font-black tracking-widest uppercase opacity-20">Credits</span>
+                 <span className="text-[9px] font-mono tracking-widest uppercase">{state.user?.credits || 0}</span>
               </div>
            </div>
            <button 
              onClick={() => setRightPanelOpen(!rightPanelOpen)}
              className={`p-2.5 border transition-all ${rightPanelOpen ? 'bg-white/10 border-white/20' : 'border-white/5 hover:bg-white/5'}`}
+             title="Toggle File Ports Panel"
            >
-              <Layout size={20} />
+              <Folder size={20} />
            </button>
         </div>
       </header>
 
       <main className="flex-1 flex overflow-hidden relative">
-        {/* LEFT UTILITY PANEL */}
-        <aside className={`h-full border-r border-white/5 bg-black/80 backdrop-blur-3xl transition-all duration-500 ease-in-out z-[4000] flex flex-col ${leftPanelOpen ? 'w-96 translate-x-0 shadow-2xl' : 'w-0 -translate-x-full'}`}>
-           <div className="p-6 border-b border-white/5 flex items-center justify-between overflow-hidden">
-              <span className="text-[10px] font-black tracking-[0.6em] uppercase opacity-40 whitespace-nowrap">SOVEREIGN_CORE</span>
+        {/* LEFT PANEL - LLM MODELS / AGENT SELECTION */}
+        <aside className={`h-full border-r border-white/5 bg-black/40 backdrop-blur-2xl transition-all duration-500 ease-in-out z-[4000] flex flex-col overflow-hidden ${leftPanelOpen ? 'w-[420px]' : 'w-0'}`}>
+           <div className="p-6 border-b border-white/5 flex items-center justify-between shrink-0">
+              <span className="text-[10px] font-black tracking-[0.6em] uppercase opacity-60">AI_AGENT_ORCHESTRA</span>
               <button onClick={() => setLeftPanelOpen(false)} className="p-1 hover:text-yellow-400 transition-colors"><ChevronLeft size={20}/></button>
            </div>
            
-           <div className="flex-1 overflow-y-auto no-scrollbar">
-              <div className="p-4 space-y-2">
-                {[
-                  { id: 'vault', title: 'Blueprints & Specs', icon: <Folder size={18}/>, desc: 'Structural Archive' },
-                  { id: 'oracle', title: 'Agent Orchestra', icon: <Cpu size={18}/>, desc: 'Discipline Control' },
-                  { id: 'live', title: 'Acoustic Comms', icon: <Radio size={18}/>, desc: 'Real-time Link' },
-                  { id: 'terminal', title: 'Kernel Buffer', icon: <TerminalIcon size={18}/>, desc: 'System Logs' },
-                ].map(item => (
-                  <button
-                    key={item.id}
-                    onClick={() => { dispatch({ type: 'TOGGLE_WINDOW', id: item.id, open: true }); dispatch({ type: 'FOCUS_WINDOW', id: item.id }); }}
-                    className="w-full p-6 flex items-start gap-6 bg-white/[0.02] border border-white/5 hover:border-yellow-400/20 hover:bg-yellow-400/[0.03] transition-all text-left group overflow-hidden"
-                  >
-                    <div className="p-3 bg-white/5 text-white/40 group-hover:text-yellow-400 transition-all">{item.icon}</div>
-                    <div className="flex-1 min-w-0">
-                       <span className="text-[11px] font-black uppercase tracking-[0.2em] whitespace-nowrap">{item.title}</span>
-                       <span className="text-[8px] font-mono opacity-20 uppercase tracking-[0.4em] mt-1">{item.desc}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {/* DIRECT ZIP UPLOAD SECTION IN PANEL */}
-              <div className="m-4 p-8 border border-dashed border-white/10 bg-white/[0.02] flex flex-col items-center text-center space-y-4">
-                 <Boxes size={32} className="opacity-10 group-hover:opacity-40 transition-opacity" />
-                 <div className="space-y-1">
-                    <p className="text-[10px] font-black uppercase tracking-widest">Ingest_Blueprints</p>
-                    <p className="text-[7px] font-mono opacity-20 uppercase tracking-[0.3em]">Support: ZIP, PDF, DWG</p>
-                 </div>
-                 <button 
-                   onClick={() => dispatch({ type: 'TOGGLE_WINDOW', id: 'vault', open: true })}
-                   className="px-6 py-2 border border-white/20 text-[9px] font-black uppercase tracking-widest hover:bg-white/5 transition-all"
-                 >
-                    Open_Vault
-                 </button>
-              </div>
+           <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <ModelOrchestrator 
+                selectedModel={state.activeNode.model} 
+                onSelect={(m) => dispatch({ type: 'UPDATE_ACTIVE_NODE', payload: { model: m } })} 
+                themeColor={state.neonTheme.color} 
+                isSubscribed={state.user?.isSubscribed || false}
+                config={{aspectRatio:'1:1', imageSize:'1K'}} 
+                onConfigChange={()=>{}} 
+              />
            </div>
 
-           <div className="p-8 border-t border-white/5 overflow-hidden">
-             {/* Replaced generic Human-AI Alliance with User Profile Summary */}
+           <div className="p-6 border-t border-white/5 shrink-0">
               {state.user && (
                 <div className="flex items-center gap-4">
-                   <div className="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center">
-                      <UserIcon size={14} className="opacity-40" />
+                   <div className="w-10 h-10 rounded-full border border-white/10 bg-white/5 flex items-center justify-center">
+                      <UserIcon size={16} className="opacity-40" />
                    </div>
-                   <div className="flex flex-col">
-                      <span className="text-[8px] font-black uppercase tracking-widest">SOVEREIGN_PROFILE</span>
-                      <span className="text-[7px] font-mono opacity-20 uppercase">{state.user.email}</span>
+                   <div className="flex flex-col flex-1">
+                      <span className="text-[9px] font-black uppercase tracking-widest">{state.user.tier} Account</span>
+                      <span className="text-[7px] font-mono opacity-40 truncate">{state.user.email}</span>
                    </div>
+                   <Coins size={14} className="text-yellow-400" />
                 </div>
               )}
            </div>
         </aside>
 
-        {/* ZEN MAIN SCREEN - ONLY CHAT PROMPT */}
+        {/* CENTER AREA - CHAT RESPONSES OVER COGNITIVE MESH */}
         <div className="flex-1 relative flex flex-col h-full">
-          {/* WINDOWS LAYER (PORT WINDOWS) */}
-          <div className="absolute inset-0 pointer-events-none z-[3000]">
-            {state.windows.filter(w => w.isOpen).map((win) => (
-              <PortWindow
-                key={win.id}
-                id={win.id}
-                title={win.title}
-                themeColor={state.neonTheme.color}
-                isActive={state.activeWindowId === win.id}
-                isMaximized={win.isMaximized}
-                zIndex={win.zIndex}
-                style={{
-                  left: win.isMaximized ? 0 : win.x,
-                  top: win.isMaximized ? 0 : win.y,
-                  width: win.isMaximized ? '100%' : win.width,
-                  height: win.isMaximized ? '100%' : win.height,
-                  pointerEvents: 'auto'
-                }}
-                icon={
-                  win.id === 'chat' ? <BrainCircuit size={14}/> : 
-                  win.id === 'vault' ? <Folder size={14}/> : 
-                  win.id === 'terminal' ? <TerminalIcon size={14}/> : 
-                  win.id === 'live' ? <Radio size={14}/> :
-                  <Cpu size={14}/>
-                }
-                onFocus={() => dispatch({ type: 'FOCUS_WINDOW', id: win.id })}
-                onClose={() => dispatch({ type: 'TOGGLE_WINDOW', id: win.id, open: false })}
-                onToggleMaximize={() => dispatch({ type: 'UPDATE_WINDOW', id: win.id, payload: { isMaximized: !win.isMaximized } })}
-                onDragStart={(e) => onDragStart(win.id, e)}
-                onResizeStart={(e) => onResizeStart(win.id, e)}
-              >
-                {win.id === 'vault' && <FilePort themeColor={state.neonTheme.color} onFileAdded={(file) => trainSynapticNode([file])} />}
-                {win.id === 'oracle' && <ModelOrchestrator 
-                  selectedModel={state.activeNode.model} 
-                  onSelect={(m) => dispatch({ type: 'UPDATE_ACTIVE_NODE', payload: { model: m } })} 
-                  themeColor={state.neonTheme.color} 
-                  isSubscribed={state.user?.isSubscribed || false} // Pass subscription status
-                  config={{aspectRatio:'1:1', imageSize:'1K'}} 
-                  onConfigChange={()=>{}} 
-                />}
-                {win.id === 'terminal' && <TerminalPanel logs={state.logs} themeColor={state.neonTheme.color} />}
-                {win.id === 'live' && <LivePort themeColor={state.neonTheme.color} />}
-              </PortWindow>
-            ))}
+          {/* CHAT MESSAGES SCROLLING IN CENTER */}
+          <div className="flex-1 w-full max-w-6xl mx-auto overflow-y-auto custom-scrollbar pb-[180px] pt-8 px-8">
+             <ChatPort 
+               messages={state.activeNode.history} 
+               isLoading={isChatLoading} 
+               activeModel={state.activeNode.model} 
+               themeColor={state.neonTheme.color} 
+               onSpeak={handleSpeak}
+               onGenerateVideo={handleGenerateVideo}
+             />
           </div>
-
-          {/* MAIN CHAT AREA - THE FOCUS POINT */}
-          <div className="h-full w-full flex flex-col items-center relative z-[2000]">
-            {/* Chat History - Fills Available Space */}
-            <div className="flex-1 w-full overflow-hidden pb-[180px]">
-               <ChatPort 
-                 messages={state.activeNode.history} 
-                 isLoading={isChatLoading} 
-                 activeModel={state.activeNode.model} 
-                 themeColor={state.neonTheme.color} 
-                 onSpeak={handleSpeak}
-                 onGenerateVideo={handleGenerateVideo}
-               />
-            </div>
             
             {/* FIXED BOTTOM PROMPT BOX - 6 inches wide (576px), 1 inch tall (96px) */}
             <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[3000] w-[576px]">
@@ -437,89 +364,36 @@ const MainLayout: React.FC = () => {
           </div>
         </div>
 
-        {/* RIGHT ANALYTICS PANEL */}
-        <aside className={`h-full border-l border-white/5 bg-black/80 backdrop-blur-3xl transition-all duration-500 ease-in-out z-[4000] flex flex-col ${rightPanelOpen ? 'w-96 translate-x-0 shadow-2xl' : 'w-0 translate-x-full'}`}>
-           <div className="p-6 border-b border-white/5 flex items-center justify-between overflow-hidden">
+        {/* RIGHT PANEL - FILE UPLOAD & EXPORTS */}
+        <aside className={`h-full border-l border-white/5 bg-black/40 backdrop-blur-2xl transition-all duration-500 ease-in-out z-[4000] flex flex-col overflow-hidden ${rightPanelOpen ? 'w-[420px]' : 'w-0'}`}>
+           <div className="p-6 border-b border-white/5 flex items-center justify-between shrink-0">
+              <span className="text-[10px] font-black tracking-[0.6em] uppercase opacity-60">FILE_PORTS_&_EXPORT</span>
               <button onClick={() => setRightPanelOpen(false)} className="p-1 hover:text-yellow-400 transition-colors"><ChevronRight size={20}/></button>
-              <span className="text-[10px] font-black tracking-[0.6em] uppercase opacity-40 whitespace-nowrap">META_ANALYSIS</span>
            </div>
            
-           <div className="flex-1 overflow-y-auto no-scrollbar p-8 space-y-12">
-              {/* Sovereign Profile (User Info) */}
-              <div className="space-y-6">
-                 <span className="text-[10px] font-black tracking-widest uppercase text-yellow-400/60">SOVEREIGN_PROFILE</span>
-                 {state.user && (
-                    <div className="grid grid-cols-1 gap-4">
-                       <div className="p-5 border border-white/5 bg-white/[0.02] flex items-center justify-between">
-                          <div className="flex flex-col gap-1">
-                             <p className="text-[8px] font-mono opacity-20 uppercase tracking-widest">User_ID</p>
-                             <p className="text-[12px] font-black tracking-widest truncate">{state.user.email.split('@')[0]}</p>
-                          </div>
-                          <UserIcon size={14} className="text-white/20" />
-                       </div>
-                       <div className="p-5 border border-white/5 bg-white/[0.02] flex items-center justify-between">
-                          <div className="flex flex-col gap-1">
-                             <p className="text-[8px] font-mono opacity-20 uppercase tracking-widest">Access_Tier</p>
-                             <p className="text-[12px] font-black tracking-widest">{state.user.tier}</p>
-                          </div>
-                          <ShieldCheck size={14} className={state.user.isSubscribed ? 'text-green-400' : 'text-white/20'} />
-                       </div>
-                       <div className="p-5 border border-white/5 bg-white/[0.02] flex items-center justify-between">
-                          <div className="flex flex-col gap-1">
-                             <p className="text-[8px] font-mono opacity-20 uppercase tracking-widest">Credits_Remaining</p>
-                             <p className="text-[12px] font-black tracking-widest">{state.user.credits}</p>
-                          </div>
-                          <Coins size={14} className="text-white/20" />
-                       </div>
-                    </div>
-                 )}
-              </div>
+           <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <FilePort themeColor={state.neonTheme.color} onFileAdded={(file) => trainSynapticNode([file])} />
+           </div>
 
-              <div className="space-y-6">
-                 <span className="text-[10px] font-black tracking-widest uppercase text-yellow-400/60">Cognitive_Metrics</span>
-                 <div className="grid grid-cols-1 gap-4">
-                    {[
-                      { label: 'Synaptic Fidelity', val: '99.98%', icon: <Zap size={10}/> },
-                      { label: 'Neural Latency', val: '12ms', icon: <Activity size={10}/> },
-                      { label: 'Alliance Trust', val: 'LEVEL_05', icon: <ShieldCheck size={10}/> },
-                    ].map(m => (
-                      <div key={m.label} className="p-5 border border-white/5 bg-white/[0.02] flex items-center justify-between">
-                         <div className="flex flex-col gap-1">
-                            <p className="text-[8px] font-mono opacity-20 uppercase tracking-widest">{m.label}</p>
-                            <p className="text-[12px] font-black tracking-widest">{m.val}</p>
-                         </div>
-                         <div className="text-white/20">{m.icon}</div>
-                      </div>
-                    ))}
-                 </div>
-              </div>
-
-              <div className="space-y-6">
-                 <span className="text-[10px] font-black tracking-widest uppercase text-white/20">Operational_DNA</span>
-                 <div className="p-6 border border-white/5 bg-black/40 font-mono text-[9px] text-white/40 leading-relaxed max-h-48 overflow-hidden relative">
-                    {state.centralBrainDNA}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
-                 </div>
-                 <button 
-                   onClick={() => dispatch({ type: 'TOGGLE_WINDOW', id: 'terminal', open: true })}
-                   className="w-full py-4 border border-white/5 text-[9px] font-black uppercase tracking-widest hover:bg-white/5 transition-all"
-                 >
-                    Inspect_Source
+           <div className="p-6 border-t border-white/5 shrink-0 space-y-4">
+              <span className="text-[9px] font-black tracking-widest uppercase text-white/40">EXPORT_CONNECTORS</span>
+              <div className="grid grid-cols-2 gap-2">
+                 <button className="p-3 border border-white/5 bg-white/[0.02] hover:border-yellow-400/20 hover:bg-yellow-400/5 transition-all text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-2">
+                    <FileArchive size={16} className="text-white/40" />
+                    Excel
                  </button>
-              </div>
-
-              <div className="p-6 border border-yellow-400/20 bg-yellow-400/5 relative group overflow-hidden">
-                 <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-40 transition-opacity">
-                    {/* Fix: Construction icon is now correctly imported */}
-                    <Construction size={32} />
-                 </div>
-                 <div className="flex items-center gap-3 mb-4">
-                    <ShieldIcon size={14} className="text-yellow-400" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Sovereign_OS</span>
-                 </div>
-                 <p className="text-[10px] leading-relaxed opacity-60 font-mono italic">
-                   "Architected for the preservation of human intent through the speed of neural synthesis."
-                 </p>
+                 <button className="p-3 border border-white/5 bg-white/[0.02] hover:border-yellow-400/20 hover:bg-yellow-400/5 transition-all text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-2">
+                    <FileCode size={16} className="text-white/40" />
+                    Word
+                 </button>
+                 <button className="p-3 border border-white/5 bg-white/[0.02] hover:border-yellow-400/20 hover:bg-yellow-400/5 transition-all text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-2">
+                    <Database size={16} className="text-white/40" />
+                    Notion
+                 </button>
+                 <button className="p-3 border border-white/5 bg-white/[0.02] hover:border-yellow-400/20 hover:bg-yellow-400/5 transition-all text-[8px] font-black uppercase tracking-widest flex flex-col items-center gap-2">
+                    <Globe size={16} className="text-white/40" />
+                    Cloud
+                 </button>
               </div>
            </div>
         </aside>
@@ -532,10 +406,10 @@ const MainLayout: React.FC = () => {
               <span>Alliance_Live</span>
            </div>
            <span>L: 12ms</span>
-           <span>R: 1080p_Visual</span>
+           <span>BID-ZONE Connected</span>
         </div>
         <div className="flex items-center gap-10">
-           <span>Kernel_v4.2.0-Sovereign</span>
+           <span>Franklin_OS_v1.0</span>
            <span>© 2025 Franklin Alliance</span>
         </div>
       </footer>

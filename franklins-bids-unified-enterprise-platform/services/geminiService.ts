@@ -8,9 +8,13 @@ export interface NeuralMetrics {
 }
 
 export class GeminiService {
-  // Fix: Use direct process.env.API_KEY initialization as per guidelines
+  // Use Vite environment variable with VITE_ prefix
   private getAI() {
-    return new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error('VITE_GEMINI_API_KEY not configured in .env file');
+    }
+    return new GoogleGenAI({ apiKey });
   }
 
   async optimizePrompt(userPrompt: string): Promise<string> {
@@ -306,8 +310,12 @@ export class GeminiService {
   }
 
   async generateVideo(prompt: string) {
-    // Fix: Using direct process.env.API_KEY initialization
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // Use Vite environment variable
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error('VITE_GEMINI_API_KEY not configured');
+    }
+    const ai = new GoogleGenAI({ apiKey });
     try {
       let operation = await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
@@ -321,7 +329,7 @@ export class GeminiService {
       }
 
       const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-      const res = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
+      const res = await fetch(`${downloadLink}&key=${apiKey}`);
       const blob = await res.blob();
       return URL.createObjectURL(blob);
     } catch (error: any) {
