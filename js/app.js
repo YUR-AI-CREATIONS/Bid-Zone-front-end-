@@ -80,6 +80,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Global function for placing bids
 function placeBid(auctionId) {
-    alert(`Bidding functionality for auction #${auctionId} will be implemented soon!`);
+    alert(`Bidding functionality is currently unavailable. Please check back later.`);
     console.log(`Bid placed for auction ${auctionId}`);
 }
