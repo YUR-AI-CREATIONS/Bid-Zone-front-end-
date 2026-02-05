@@ -1,0 +1,21 @@
+{
+  "name": "bid-zone-frontend",
+  "version": "1.0.0",
+  "description": "Bid Zone - Online auction platform front-end application",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 8080 -o",
+    "test": "echo \"No tests specified yet\" && exit 0"
+  },
+  "keywords": [
+    "auction",
+    "bidding",
+    "marketplace",
+    "frontend"
+  ],
+  "author": "YUR AI CREATIONS",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
