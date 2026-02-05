@@ -1,13 +1,140 @@
 import { User, Project, FileMetadata } from "../types";
 
-// Change this to your actual backend URL (e.g., https://api.yur.ai)
-const BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+// BID-ZONE Backend API
+const BASE_URL = 'https://bid-zone.onrender.com';
 
 export class ApiService {
-  // Simulate a network request delay
+  // Simulate a network request delay (for auth/billing which are still mocked)
   private async simulateDelay(ms: number = 1000) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
+
+  // ==================== REAL BID-ZONE API METHODS ====================
+
+  /**
+   * Upload construction document for AI processing
+   */
+  async uploadDocument(file: File, projectName: string): Promise<{
+    success: boolean;
+    project_name: string;
+    result: any;
+  }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('project_name', projectName);
+
+    const response = await fetch(`${BASE_URL}/api/upload`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Get real-time estimate of currently processing project
+   */
+  async getCurrentEstimate(): Promise<{
+    project_name: string;
+    processing_stage: string;
+    current_estimate: number;
+    current_items: number;
+    status: string;
+    stages: any;
+  } | null> {
+    const response = await fetch(`${BASE_URL}/api/estimate/current`);
+    
+    if (response.status === 404) {
+      return null; // No project currently processing
+    }
+
+    if (!response.ok) {
+      throw new Error(`Failed to get estimate: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Get system status and available agents
+   */
+  async getSystemStatus(): Promise<{
+    system_status: string;
+    agents_available: string[];
+    projects_processed: number;
+    current_project: string | null;
+    timestamp: string;
+  }> {
+    const response = await fetch(`${BASE_URL}/api/status`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to get status: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Get agent statistics
+   */
+  async getAgentStatistics(): Promise<{
+    [key: string]: {
+      agent_id: string;
+      specialty: string;
+      chunks_processed: number;
+    };
+  }> {
+    const response = await fetch(`${BASE_URL}/api/agents`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to get agents: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * List all processed projects
+   */
+  async listProjects(): Promise<{
+    projects: Array<{
+      name: string;
+      path: string;
+      files: string[];
+    }>;
+    count: number;
+  }> {
+    const response = await fetch(`${BASE_URL}/api/projects`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to list projects: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Check backend health
+   */
+  async healthCheck(): Promise<{
+    status: string;
+    version: string;
+    service: string;
+  }> {
+    const response = await fetch(`${BASE_URL}/health`);
+    
+    if (!response.ok) {
+      throw new Error(`Health check failed: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  // ==================== SIMULATED CLIENT-SIDE (Auth/Billing) ====================
 
   // AUTHENTICATION - SIMULATED CLIENT-SIDE
   async authenticate(email: string, pass: string, mode: 'signin' | 'signup', simulatePremium: boolean = false): Promise<User> {
@@ -85,22 +212,33 @@ export class ApiService {
     return { isSubscribed: false, tier: 'BASIC', credits: 0 };
   }
 
-  // PERSISTENCE - Placeholder, not fully implemented client-side
+  // PERSISTENCE - Now using real BID-ZONE API
   async saveProject(project: Project): Promise<void> {
     await this.simulateDelay();
     console.log("Simulated Project Save:", project);
-    // In a real app, this would interact with a backend database
+    // Backend doesn't have save endpoint yet - use localStorage for now
   }
 
   async fetchProjects(): Promise<Project[]> {
-    await this.simulateDelay();
-    console.log("Simulated Fetch Projects");
-    return []; // Return empty for now
+    // Use real API to get processed projects
+    const projectsData = await this.listProjects();
+    console.log("Real Projects from BID-ZONE:", projectsData);
+    
+    // Convert to Project format (simplified for now)
+    return projectsData.projects.map(p => ({
+      id: p.name,
+      name: p.name,
+      description: `${p.files.length} files`,
+      nodes: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }));
   }
 
   async deleteProject(id: string): Promise<void> {
     await this.simulateDelay();
     console.log("Simulated Delete Project:", id);
+    // Backend doesn't have delete endpoint yet
   }
 }
 

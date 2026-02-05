@@ -1,17 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  X, FolderArchive, Eye, Code, CloudUpload, FileArchive, Activity, Zap, Cpu, Box, FileCode, ChevronDown, ChevronUp, Grid, HardHat, LandPlot, Hammer, Ruler, Loader2
+  X, FolderArchive, Eye, Code, CloudUpload, FileArchive, Activity, Zap, Cpu, Box, FileCode, ChevronDown, ChevronUp, Grid, HardHat, LandPlot, Hammer, Ruler, Loader2, CheckCircle, Send
 } from 'lucide-react';
 import { FileMetadata } from '../types';
+import { apiService } from '../services/apiService';
 
 declare const JSZip: any;
 declare const Prism: any;
 
 interface ProcessedFile extends FileMetadata {
-  status: 'uploading' | 'processing' | 'ready' | 'error';
+  status: 'uploading' | 'processing' | 'ready' | 'error' | 'sent' | 'estimating';
   progress: number;
   manifest?: string[];
   previewOpen?: boolean;
+  rawFile?: File; // Store original File object for backend upload
+  estimateData?: {
+    current_estimate: number;
+    current_items: number;
+    processing_stage: string;
+  };
 }
 
 interface Props {
@@ -100,7 +107,15 @@ const FilePort: React.FC<Props> = ({ themeColor, onFileAdded }) => {
     }
 
     const newFile: ProcessedFile = {
-      id: fileId, name: file.name, size: file.size, type: 'raw', path: file.name, status: 'uploading', progress: 0, mimeType: file.type
+      id: fileId, 
+      name: file.name, 
+      size: file.size, 
+      type: 'raw', 
+      path: file.name, 
+      status: 'uploading', 
+      progress: 0, 
+      mimeType: file.type,
+      rawFile: file // Store original File for backend upload
     };
     setFiles(prev => [newFile, ...prev]);
 
@@ -125,6 +140,59 @@ const FilePort: React.FC<Props> = ({ themeColor, onFileAdded }) => {
         reader.readAsText(file);
       }
     });
+  };
+
+  // NEW: Send file to BID-ZONE backend for AI cost estimation
+  const sendToBidZone = async (fileId: string) => {
+    const file = files.find(f => f.id === fileId);
+    if (!file || !file.rawFile) {
+      console.error('No raw file found for upload');
+      return;
+    }
+
+    try {
+      // Update status to sending
+      setFiles(prev => prev.map(f => f.id === fileId ? { ...f, status: 'uploading' as const, progress: 0 } : f));
+
+      // Upload to BID-ZONE backend
+      const result = await apiService.uploadDocument(file.rawFile, file.name);
+      console.log('Upload result:', result);
+
+      // Update to estimating status
+      setFiles(prev => prev.map(f => f.id === fileId ? { ...f, status: 'estimating' as const, progress: 100 } : f));
+
+      // Start polling for real-time estimate
+      const pollInterval = setInterval(async () => {
+        try {
+          const estimate = await apiService.getCurrentEstimate();
+          if (estimate && estimate.project_name === file.name) {
+            setFiles(prev => prev.map(f => f.id === fileId ? { 
+              ...f, 
+              estimateData: {
+                current_estimate: estimate.current_estimate,
+                current_items: estimate.current_items,
+                processing_stage: estimate.processing_stage
+              }
+            } : f));
+
+            // Stop polling if complete
+            if (estimate.status === 'completed') {
+              clearInterval(pollInterval);
+              setFiles(prev => prev.map(f => f.id === fileId ? { ...f, status: 'sent' as const } : f));
+            }
+          }
+        } catch (err) {
+          console.error('Polling error:', err);
+        }
+      }, 2000); // Poll every 2 seconds
+
+      // Stop polling after 5 minutes
+      setTimeout(() => clearInterval(pollInterval), 300000);
+
+    } catch (error: any) {
+      console.error('BID-ZONE upload failed:', error);
+      setFiles(prev => prev.map(f => f.id === fileId ? { ...f, status: 'error' as const } : f));
+    }
   };
 
   const handleZip = async (file: File, id: string) => {
@@ -210,11 +278,38 @@ const FilePort: React.FC<Props> = ({ themeColor, onFileAdded }) => {
                    </div>
                    <div className="flex items-center justify-between">
                      <p className="text-[8px] opacity-20 font-mono">{(file.size/1024).toFixed(1)}KB // {file.status.toUpperCase()}</p>
-                     {file.status !== 'ready' && file.status !== 'error' && (
+                     {file.status !== 'ready' && file.status !== 'error' && file.status !== 'sent' && file.status !== 'estimating' && (
                        <span className="text-[8px] font-black" style={{ color: themeColor }}>{file.progress}%</span>
                      )}
+                     {file.status === 'sent' && (
+                       <CheckCircle size={12} className="text-emerald-500" />
+                     )}
                    </div>
+                   
+                   {/* Real-time Estimate Display */}
+                   {file.estimateData && (
+                     <div className="mt-2 pt-2 border-t border-white/5">
+                       <p className="text-[8px] font-black uppercase tracking-widest text-yellow-400">
+                         ${file.estimateData.current_estimate.toLocaleString()}
+                       </p>
+                       <p className="text-[7px] opacity-40 font-mono">
+                         {file.estimateData.current_items} items // {file.estimateData.processing_stage}
+                       </p>
+                     </div>
+                   )}
                 </div>
+                
+                {/* Send to BID-ZONE Button */}
+                {file.status === 'ready' && file.rawFile && (
+                  <button
+                    onClick={() => sendToBidZone(file.id)}
+                    className="px-3 py-2 border border-yellow-400/20 bg-yellow-400/5 hover:bg-yellow-400/10 transition-all flex items-center gap-2"
+                    title="Send to BID-ZONE for AI Cost Estimation"
+                  >
+                    <Send size={12} className="text-yellow-400" />
+                    <span className="text-[8px] font-black uppercase tracking-widest text-yellow-400">Estimate</span>
+                  </button>
+                )}
              </div>
 
              {file.previewOpen && file.data && (
